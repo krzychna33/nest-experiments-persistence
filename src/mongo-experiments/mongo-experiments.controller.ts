@@ -41,21 +41,18 @@ export class MongoExperimentsController {
     let petResult;
 
     await session_.withTransaction(async (session) => {
-      const numberOfPets = await this.petModel.find(
+      const numberOfPets = await this.petModel.countDocuments(
         { ownerId: new Types.ObjectId(dto.ownerId) },
-        undefined,
         {
           session,
         },
       );
 
-      // petonwer.pets.leng()
-
-      console.log(`${dto.ownerId} has ${numberOfPets.length} pets`);
+      console.log(`${dto.ownerId} has ${numberOfPets} pets`);
 
       await wait(waitms);
 
-      if (numberOfPets.length >= MAX_PETS_PER_OWNER) {
+      if (numberOfPets >= MAX_PETS_PER_OWNER) {
         throw new BadRequestException('Too many pets');
       }
 
@@ -80,8 +77,6 @@ export class MongoExperimentsController {
   @Post('orders')
   async createOrder(@Body() dto: CreateOrderDto) {
     const session = await this.connection.startSession();
-
-    // await session.startTransaction();
 
     let itemUpdated;
     return session.withTransaction(async () => {
