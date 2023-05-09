@@ -34,7 +34,7 @@ export class PgExperimentsController {
       const repo = queryRunner.manager.getRepository(PetEntity);
       await repo
         .createQueryBuilder()
-        .setLock('pessimistic_read')
+        .setLock('pessimistic_write')
         .where({ ownerId: dto.ownerId })
         .getOne();
       const ownerPetsCount = await repo.count({
