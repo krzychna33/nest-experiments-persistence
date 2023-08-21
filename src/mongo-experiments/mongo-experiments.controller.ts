@@ -75,11 +75,15 @@ export class MongoExperimentsController {
   }
 
   @Post('orders')
-  async createOrder(@Body() dto: CreateOrderDto) {
+  async createOrder(
+    @Body() dto: CreateOrderDto,
+    @Query('waitms', new ParseIntPipe()) waitms: number,
+  ) {
     const session = await this.connection.startSession();
 
     let itemUpdated;
     return session.withTransaction(async () => {
+      console.log('in tx');
       const item = await this.itemModel.findOne(
         {
           _id: new Types.ObjectId(dto.itemId),
@@ -95,7 +99,7 @@ export class MongoExperimentsController {
         throw new BadRequestException('Item out of stock');
       }
 
-      await wait(5000);
+      await wait(waitms);
 
       item.stock -= 1;
 
