@@ -1,0 +1,29 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserModel {
+  id: Int!
+  email: String!
+}
+
+type PostModel {
+  id: Int!
+  title: String!
+  authorId: Int!
+  author: UserModel!
+}
+
+type Query {
+  users: [UserModel!]!
+  posts: [PostModel!]!
+}
+
+type Mutation {
+  createPost(input: PostInput!): PostModel!
+}
+
+input PostInput {
+  title: String!
+  authorId: Float!
+}
