@@ -1,73 +1,39 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# This is repo with nest experiments
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## OAuth2 - related Experiments
 
-## Description
+Nice explanation videos: https://www.youtube.com/watch?v=PsbIGfvX900&ab_channel=productioncoder
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Authentication with cognito using SRP
 
-## Installation
+Authentication flow for the Secure Remote Password (SRP) protocol. Your app collects your user's user name and password and generates an SRP that it passes to Amazon Cognito, instead of plaintext credentials.
 
-```bash
-$ npm install
-```
+Endpoints:
+- auth/sign-up
+- auth/sign-in
+- auth/sign-up-confirm
 
-## Running the app
+CognitoAccessTokenGuard checks for token validity
 
-```bash
-# development
-$ npm run start
+### Authentication with cognito using OAuth2 - Authorization Code Grant (OPEN ID Connect)
 
-# watch mode
-$ npm run start:dev
+Authorization code grant flow. Your app redirects the user to the authorization server (Amazon Cognito) where they sign in. Amazon Cognito then redirects the user back to your app with an authorization code.
+App calls THIS backend in order to exchange code for tokens.
 
-# production mode
-$ npm run start:prod
-```
+Endpoints:
+- auth/token
 
-## Test
+CognitoAccessTokenGuard checks for token validity
 
-```bash
-# unit tests
-$ npm run test
+This flow is a replacement for SRP flow, it is better because it allows to authenticate users not only with password but also with social providers like google, facebook etc.
 
-# e2e tests
-$ npm run test:e2e
 
-# test coverage
-$ npm run test:cov
-```
+### Authorization using OAuth2 - Authorization Code Grant - allow THIS backend to access google api in behalf of logged user
 
-## Support
+Endpoints:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+- calendar/events - checks if google_access_token for logged user is in db if yes returns calendar events otherwise returns 401 http error and frontend should call calendar/google-auth-url to get google auth url.
+As a next step this link should be opened in user browser, last step is to visit calendar/google-auth-callback with code and state params (google will redirect user to this endpoint after successful auth).
+- calendar/google-auth-url - returns google auth url
+- calendar/google-auth-callback - endpoint to be called by google after successful auth, it will exchange code for tokens and save them in database

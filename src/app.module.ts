@@ -13,6 +13,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'node:path';
 import * as Joi from 'joi';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { AuthModule } from './auth/auth.module';
+import { CalendarModule } from './calendar/calendar.module';
+import { GoogleCalendarApiTokenEntity } from './calendar/entities/google-calendar-api-token.entity';
 
 @Module({
   imports: [
@@ -28,9 +31,14 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
       username: 'postgres',
       password: 'postgres',
       database: 'experiments',
-      entities: [PetEntity, PostEntity, UserEntity],
+      entities: [
+        PetEntity,
+        PostEntity,
+        UserEntity,
+        GoogleCalendarApiTokenEntity,
+      ],
       synchronize: true,
-      logging: true,
+      // logging: true,
     }),
     PgExperimentsModule,
     GraphqlExperimentsModule,
@@ -44,10 +52,13 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
       }),
     }),
     ConfigModule.forRoot({
+      isGlobal: true,
       validationSchema: Joi.object({
         GRAPHQL_PLAYGROUND: Joi.number(),
       }),
     }),
+    AuthModule,
+    CalendarModule,
   ],
   controllers: [AppController],
 })
